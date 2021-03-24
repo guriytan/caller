@@ -9,7 +9,6 @@ type request struct {
 	method string
 	body   io.Reader
 	header map[string]string
-	form   map[string]string
 }
 
 type RequestFunc func(req *request)
@@ -29,11 +28,5 @@ func WithMethod(method string) RequestFunc {
 func WithBody(body io.Reader) RequestFunc {
 	return func(req *request) {
 		req.body = body
-	}
-}
-
-func WithForm(form map[string]string) RequestFunc {
-	return func(req *request) {
-		req.form = form
 	}
 }
