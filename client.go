@@ -35,6 +35,9 @@ func (c *Client) Do(ctx context.Context, url string, opts ...RequestFunc) Result
 	if err != nil {
 		return newErrResult(newResultError("new request failed", err))
 	}
+	for key, value := range param.header {
+		req.Header.Set(key, value)
+	}
 	var resp *http.Response
 	do := func(ctx context.Context) error {
 		var err error
