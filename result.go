@@ -5,6 +5,7 @@ import (
 )
 
 type Result interface {
+	io.ReadCloser
 	Err() error
 	Byte() ([]byte, error)
 	String() (string, error)
@@ -26,7 +27,21 @@ func newErrResult(err error) Result {
 }
 
 func newResult(body io.ReadCloser) Result {
-	return &result{body: body, parser: DefaultReceiveFunc}
+	return &result{body: body, parser: defaultReceiveFunc}
+}
+
+func (p *result) Read(byte []byte) (n int, err error) {
+	if err := p.check(); err != nil {
+		return 0, err
+	}
+	return p.body.Read(byte)
+}
+
+func (p *result) Close() error {
+	if p.close || p.err != nil {
+		return nil
+	}
+	return p.Close()
 }
 
 func (p *result) Byte() ([]byte, error) {
@@ -42,10 +57,7 @@ func (p *result) String() (string, error) {
 }
 
 func (p *result) Err() error {
-	if p.err != nil {
-		return p.err
-	}
-	return nil
+	return p.err
 }
 
 func (p *result) Raw() (io.ReadCloser, error) {
@@ -60,11 +72,11 @@ func (p *result) Parse(receive interface{}) error {
 }
 
 func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
-	if err := p.check(); err != nil {
+	bytes, err := p.read()
+	if err != nil {
 		return err
 	}
-	defer func() { p.close = true }()
-	if err := parse(p.body, receive); err != nil {
+	if err := parse(bytes, receive); err != nil {
 		return newResultError("parse response body failed", err)
 	}
 	return nil

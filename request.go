@@ -1,6 +1,7 @@
 package caller
 
 import (
+	"bytes"
 	"io"
 	"strings"
 )
@@ -25,8 +26,8 @@ func WithMethod(method string) RequestFunc {
 	}
 }
 
-func WithBody(body io.Reader) RequestFunc {
+func WithBody(body []byte) RequestFunc {
 	return func(req *request) {
-		req.body = body
+		req.body = bytes.NewReader(body)
 	}
 }

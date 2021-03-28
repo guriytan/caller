@@ -43,7 +43,7 @@ func (c core) Do(req *http.Request) (resp *http.Response, err error) {
 	}
 	switch {
 	case response.StatusCode >= http.StatusInternalServerError:
-		err = newNoRetryError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrRequest)
+		err = newNoRetryError(newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrRequest))
 	case response.StatusCode >= http.StatusBadRequest:
 		err = newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrServer)
 	}
@@ -54,11 +54,11 @@ func (c *core) handleError(err error) error {
 	switch err := err.(type) {
 	case net.Error:
 		if err.Timeout() {
-			return newNoRetryError(0, "timeout", err)
+			return newNoRetryError(newResultError("timeout", err))
 		}
 	case *url.Error:
 		if err.Timeout() {
-			return newNoRetryError(0, "timeout", err)
+			return newNoRetryError(newResultError("timeout", err))
 		}
 	}
 	return newResultError("http failed", err)

@@ -20,20 +20,21 @@ func UnWarpHttpError(err error) (*HttpError, error) {
 }
 
 type NoRetryError struct {
-	*HttpError
+	error
 }
 
-func newNoRetryError(code int, message string, err error) *NoRetryError {
-	return &NoRetryError{HttpError: &HttpError{code: code, ResultError: &ResultError{message: message, err: err}}}
+func newNoRetryError(err error) *NoRetryError {
+	return &NoRetryError{error: err}
 }
 
 type HttpError struct {
-	code int
-	*ResultError
+	code    int
+	message string
+	err     error
 }
 
 func newHttpError(code int, message string, err error) *HttpError {
-	return &HttpError{code: code, ResultError: &ResultError{message: message, err: err}}
+	return &HttpError{code: code, message: message, err: err}
 }
 
 func (h *HttpError) Error() string {
