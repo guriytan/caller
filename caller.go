@@ -6,27 +6,27 @@ import (
 	"time"
 )
 
-type Client struct {
+type Caller struct {
 	core Core
 
 	retryTime     int
 	retryInternal time.Duration
 }
 
-func NewClient(opts ...ConfigFunc) *Client {
+func NewCaller(opts ...ConfigFunc) *Caller {
 	cfg := newDefaultConfig()
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	client := &Client{
+	caller := &Caller{
 		core:          newCore(cfg),
 		retryTime:     cfg.RetryTime,
 		retryInternal: cfg.RetryInternal,
 	}
-	return client
+	return caller
 }
 
-func (c *Client) Do(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result {
 	var param = &request{method: "GET"}
 	for _, opt := range opts {
 		opt(param)
@@ -52,42 +52,42 @@ func (c *Client) Do(ctx context.Context, url string, opts ...RequestFunc) Result
 	return newResult(resp.Body)
 }
 
-func (c *Client) Options(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Options(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("OPTIONS"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Get(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Get(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("GET"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Head(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Head(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("HEAD"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Post(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Post(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("POST"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Put(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Put(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("PUT"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Delete(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Delete(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("DELETE"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Trace(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Trace(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("TRACE"))
 	return c.Do(ctx, url, opts...)
 }
 
-func (c *Client) Connect(ctx context.Context, url string, opts ...RequestFunc) Result {
+func (c *Caller) Connect(ctx context.Context, url string, opts ...RequestFunc) Result {
 	opts = append(opts, WithMethod("CONNECT"))
 	return c.Do(ctx, url, opts...)
 }

@@ -43,9 +43,9 @@ func (c core) Do(req *http.Request) (resp *http.Response, err error) {
 	}
 	switch {
 	case response.StatusCode >= http.StatusInternalServerError:
-		err = newNoRetryError(newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrRequest))
+		err = newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrRequest)
 	case response.StatusCode >= http.StatusBadRequest:
-		err = newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrServer)
+		err = newNoRetryError(newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrServer))
 	}
 	return response, nil
 }

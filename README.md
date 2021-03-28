@@ -12,7 +12,7 @@ received into the pointer of struct or map, slice.
 ### Default
 
 ```go
-func TestClient(t *testing.T) {
+func TestCaller(t *testing.T) {
 	ctx := context.Background()
 	result := map[string]interface{}{}
 	err := Get(ctx, "http://127.0.0.1:8888/ping").Parse(&result)
@@ -26,13 +26,13 @@ func TestClient(t *testing.T) {
 ### Optional
 
 ```go
-func TestOptionalClient(t *testing.T) {
+func TestOptionalCaller(t *testing.T) {
     ctx := context.Background()
     result := map[string]interface{}{}
     header := map[string]string{"key": "value"}
     result := map[string]interface{}{} 
-    client := NewClient(WithTimeout(5*time.Second), WithRetry(3, 5*time.Second))
-    err := client.Do(ctx, "http://127.0.0.1:8888/ping", WithMethod("get"), WithHeader(header)).Parse(&result)
+    caller := NewCaller(WithTimeout(5*time.Second), WithRetry(3, 5*time.Second))
+    err := caller.Do(ctx, "http://127.0.0.1:8888/ping", WithMethod("get"), WithHeader(header)).Parse(&result)
     if err != nil { 
     	t.Fatal(err)
     }

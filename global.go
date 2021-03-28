@@ -2,10 +2,10 @@ package caller
 
 import "context"
 
-var defaultCaller *Client
+var defaultCaller *Caller
 
 func init() {
-	defaultCaller = NewClient()
+	defaultCaller = NewCaller()
 }
 
 func Options(ctx context.Context, url string, opts ...RequestFunc) Result {
