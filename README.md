@@ -1,8 +1,11 @@
-# caller
+# Caller
 
-A tool can help coder reduce many duplicate code to request http api, and support optional config to modify the param of
+A tool can help coder reduce many duplicate code of requesting http api, and support optional config to modify the param of
 request and http client. What's more, this tool support that the response body of restful api is parsed by function and
 received into the pointer of struct or map, slice.
+
+一个工具可以帮助减少许多用于请求http api的重复代码，并支持可选的配置来修改请求和http client的参数。
+此外，该工具支持接收struct、map、slice的指针来函数解析（默认是json）api的响应体。
 
 ## Usages
 
