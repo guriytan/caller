@@ -29,8 +29,10 @@ func TestClient(t *testing.T) {
 func TestOptionalClient(t *testing.T) {
     ctx := context.Background()
     result := map[string]interface{}{}
+    header := map[string]string{"key": "value"}
+    result := map[string]interface{}{} 
     client := NewClient(WithTimeout(5*time.Second), WithRetry(3, 5*time.Second))
-    err := client.Do(ctx, "http://127.0.0.1:8888/ping", WithMethod("get"), WithHeader(map[string]string{"key": "value"})).Parse(&result)
+    err := client.Do(ctx, "http://127.0.0.1:8888/ping", WithMethod("get"), WithHeader(header)).Parse(&result)
     if err != nil { 
     	t.Fatal(err)
     }
