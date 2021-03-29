@@ -18,12 +18,11 @@ func NewCaller(opts ...ConfigFunc) *Caller {
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	caller := &Caller{
+	return &Caller{
 		core:          newCore(cfg),
 		retryTime:     cfg.RetryTime,
 		retryInternal: cfg.RetryInternal,
 	}
-	return caller
 }
 
 func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result {

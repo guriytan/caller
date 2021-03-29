@@ -5,8 +5,8 @@ import (
 	"unsafe"
 )
 
-func bytesToString(b []byte) string {
-	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+func bytesToString(bytes []byte) string {
+	bytesHeader := (*reflect.SliceHeader)(unsafe.Pointer(&bytes))
 	strHeader := reflect.StringHeader{Data: bytesHeader.Data, Len: bytesHeader.Len}
 	return *(*string)(unsafe.Pointer(&strHeader))
 }

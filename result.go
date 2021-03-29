@@ -5,7 +5,6 @@ import (
 )
 
 type Result interface {
-	io.ReadCloser
 	Err() error
 	Byte() ([]byte, error)
 	String() (string, error)
@@ -30,18 +29,8 @@ func newResult(body io.ReadCloser) Result {
 	return &result{body: body, parser: defaultReceiveFunc}
 }
 
-func (p *result) Read(byte []byte) (n int, err error) {
-	if err := p.check(); err != nil {
-		return 0, err
-	}
-	return p.body.Read(byte)
-}
-
-func (p *result) Close() error {
-	if p.close || p.err != nil {
-		return nil
-	}
-	return p.Close()
+func (p *result) Err() error {
+	return p.err
 }
 
 func (p *result) Byte() ([]byte, error) {
@@ -54,10 +43,6 @@ func (p *result) String() (string, error) {
 		return "", err
 	}
 	return bytesToString(read), err
-}
-
-func (p *result) Err() error {
-	return p.err
 }
 
 func (p *result) Raw() (io.ReadCloser, error) {

@@ -31,7 +31,7 @@ func (r *retry) Do(ctx context.Context, f func(ctx context.Context) error) error
 		}
 		select {
 		case <-time.After(r.internal):
+			retryTime++
 		}
-		retryTime++
 	}
 }

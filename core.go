@@ -47,6 +47,9 @@ func (c core) Do(req *http.Request) (resp *http.Response, err error) {
 	case response.StatusCode >= http.StatusBadRequest:
 		err = newNoRetryError(newHttpError(response.StatusCode, fmt.Sprintf("body: %s", c.handlerResponse(response)), ErrServer))
 	}
+	if err != nil {
+		return nil, err
+	}
 	return response, nil
 }
 
