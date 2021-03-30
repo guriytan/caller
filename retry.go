@@ -22,11 +22,11 @@ func (r *retry) Do(ctx context.Context, f func(ctx context.Context) error) error
 		if errC == nil {
 			return nil
 		}
-		var e NoRetryError
+		var e *NoRetryError
 		if errors.As(errC, &e) {
-			return e
+			return e.error
 		}
-		if retryTime > r.retry {
+		if retryTime >= r.retry {
 			return newRetryError(retryTime, errC)
 		}
 		select {

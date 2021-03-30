@@ -28,6 +28,10 @@ func newNoRetryError(err error) *NoRetryError {
 	return &NoRetryError{error: err}
 }
 
+func (n *NoRetryError) Unwrap() error {
+	return n.error
+}
+
 type ResultError struct {
 	code    int
 	message string
@@ -54,6 +58,10 @@ func (h *ResultError) Message() string {
 	return h.message
 }
 
+func (h *ResultError) Unwrap() error {
+	return h.err
+}
+
 type RetryError struct {
 	retry int
 	err   error
@@ -65,4 +73,8 @@ func newRetryError(retry int, err error) *RetryError {
 
 func (e *RetryError) Error() string {
 	return fmt.Sprintf("retry failed, time: %d, err: %v", e.retry, e.err)
+}
+
+func (e *RetryError) Unwrap() error {
+	return e.err
 }
