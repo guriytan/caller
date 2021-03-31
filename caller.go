@@ -3,14 +3,12 @@ package caller
 import (
 	"context"
 	"net/http"
-	"time"
 )
 
 type Caller struct {
 	core Core
 
-	retryTime     int
-	retryInternal time.Duration
+	retry Retry
 }
 
 func NewCaller(opts ...ConfigFunc) *Caller {
@@ -19,9 +17,8 @@ func NewCaller(opts ...ConfigFunc) *Caller {
 		opt(cfg)
 	}
 	return &Caller{
-		core:          newCore(cfg),
-		retryTime:     cfg.RetryTime,
-		retryInternal: cfg.RetryInternal,
+		core:  newCore(cfg),
+		retry: newRetry(cfg.RetryTime, cfg.RetryInternal),
 	}
 }
 
@@ -45,7 +42,7 @@ func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result
 		}
 		return nil
 	}
-	if err = newRetry(c.retryTime, c.retryInternal).Do(ctx, do); err != nil {
+	if err = c.retry.Do(ctx, do); err != nil {
 		return newErrResult(err)
 	}
 	return newResult(resp.Body)

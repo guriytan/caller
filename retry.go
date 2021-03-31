@@ -6,12 +6,16 @@ import (
 	"time"
 )
 
+type Retry interface {
+	Do(ctx context.Context, f func(ctx context.Context) error) error
+}
+
 type retry struct {
 	retry    int
 	internal time.Duration
 }
 
-func newRetry(retries int, internal time.Duration) *retry {
+func newRetry(retries int, internal time.Duration) Retry {
 	return &retry{retry: retries, internal: internal}
 }
 
