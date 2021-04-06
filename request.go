@@ -40,7 +40,7 @@ func (r *request) url() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if parseURL.Scheme == "" {
+	if len(parseURL.Scheme) == 0 {
 		parseURL.Scheme = "http"
 	}
 	parseURL.RawQuery = r.query.Encode()

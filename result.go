@@ -15,6 +15,7 @@ type Result interface {
 
 type result struct {
 	body      io.ReadCloser
+	bytes     []byte
 	parseFunc ParseFunc
 
 	err   error
@@ -68,6 +69,9 @@ func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
 }
 
 func (p *result) read() ([]byte, error) {
+	if p.bytes != nil {
+		return p.bytes, nil
+	}
 	if err := p.check(); err != nil {
 		return nil, err
 	}
@@ -76,6 +80,7 @@ func (p *result) read() ([]byte, error) {
 	if err != nil {
 		return nil, newResultError("read response body failed", err)
 	}
+	p.bytes = bytes
 	return bytes, nil
 }
 
