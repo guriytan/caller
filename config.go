@@ -21,6 +21,8 @@ type Config struct {
 	Proxy     func(*http.Request) (*url.URL, error)
 	Redirect  func(req *http.Request, via []*http.Request) error
 	CookieJar http.CookieJar
+
+	ParseFunc ParseFunc
 }
 
 func newDefaultConfig() *Config {
@@ -28,6 +30,7 @@ func newDefaultConfig() *Config {
 		ConnTimeout: 5 * time.Second,
 		Timeout:     10 * time.Second,
 		KeepAlive:   10 * time.Second,
+		ParseFunc:   defaultReceiveFunc,
 	}
 }
 
@@ -92,5 +95,11 @@ func WithRedirect(redirect func(req *http.Request, via []*http.Request) error) C
 func WithCookieJar(cookiejar http.CookieJar) ConfigFunc {
 	return func(config *Config) {
 		config.CookieJar = cookiejar
+	}
+}
+
+func WithParseFunc(parseFunc ParseFunc) ConfigFunc {
+	return func(config *Config) {
+		config.ParseFunc = parseFunc
 	}
 }

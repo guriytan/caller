@@ -14,8 +14,8 @@ type Result interface {
 }
 
 type result struct {
-	body   io.ReadCloser
-	parser ParseFunc
+	body      io.ReadCloser
+	parseFunc ParseFunc
 
 	err   error
 	close bool
@@ -25,8 +25,8 @@ func newErrResult(err error) Result {
 	return &result{err: err}
 }
 
-func newResult(body io.ReadCloser) Result {
-	return &result{body: body, parser: defaultReceiveFunc}
+func newResult(body io.ReadCloser, parse ParseFunc) Result {
+	return &result{body: body, parseFunc: parse}
 }
 
 func (p *result) Err() error {
@@ -53,7 +53,7 @@ func (p *result) Raw() (io.ReadCloser, error) {
 }
 
 func (p *result) Parse(receive interface{}) error {
-	return p.ParseWithFunc(receive, p.parser)
+	return p.ParseWithFunc(receive, p.parseFunc)
 }
 
 func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {

@@ -9,6 +9,8 @@ type Caller struct {
 	core Core
 
 	retry Retry
+
+	parseFunc ParseFunc
 }
 
 func NewCaller(opts ...ConfigFunc) *Caller {
@@ -17,22 +19,16 @@ func NewCaller(opts ...ConfigFunc) *Caller {
 		opt(cfg)
 	}
 	return &Caller{
-		core:  newCore(cfg),
-		retry: newRetry(cfg.RetryTime, cfg.RetryInternal),
+		core:      newCore(cfg),
+		retry:     newRetry(cfg.RetryTime, cfg.RetryInternal),
+		parseFunc: cfg.ParseFunc,
 	}
 }
 
 func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result {
-	var param = &request{method: "GET"}
-	for _, opt := range opts {
-		opt(param)
-	}
-	req, err := http.NewRequestWithContext(ctx, param.method, url, param.body)
+	req, err := newRequest(ctx, "GET", url, opts...)
 	if err != nil {
-		return newErrResult(newResultError("new request failed", err))
-	}
-	for key, value := range param.header {
-		req.Header.Set(key, value)
+		return newErrResult(err)
 	}
 	var resp *http.Response
 	do := func(ctx context.Context) error {
@@ -45,45 +41,37 @@ func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result
 	if err = c.retry.Do(ctx, do); err != nil {
 		return newErrResult(err)
 	}
-	return newResult(resp.Body)
+	return newResult(resp.Body, c.parseFunc)
 }
 
 func (c *Caller) Options(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("OPTIONS"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("OPTIONS"))...)
 }
 
 func (c *Caller) Get(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("GET"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("GET"))...)
 }
 
 func (c *Caller) Head(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("HEAD"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("HEAD"))...)
 }
 
 func (c *Caller) Post(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("POST"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("POST"))...)
 }
 
 func (c *Caller) Put(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("PUT"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("PUT"))...)
 }
 
 func (c *Caller) Delete(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("DELETE"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("DELETE"))...)
 }
 
 func (c *Caller) Trace(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("TRACE"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("TRACE"))...)
 }
 
 func (c *Caller) Connect(ctx context.Context, url string, opts ...RequestFunc) Result {
-	opts = append(opts, WithMethod("CONNECT"))
-	return c.Do(ctx, url, opts...)
+	return c.Do(ctx, url, append(opts, WithMethod("CONNECT"))...)
 }
