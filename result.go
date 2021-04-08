@@ -62,7 +62,7 @@ func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
 	if err != nil {
 		return err
 	}
-	if err := parse(bytes, receive); err != nil {
+	if err = parse(bytes, receive); err != nil {
 		return newResultError("parse response body failed", err)
 	}
 	return nil

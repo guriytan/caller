@@ -32,7 +32,6 @@ func (c *Caller) Do(ctx context.Context, url string, opts ...RequestFunc) Result
 	}
 	var resp *http.Response
 	do := func(ctx context.Context) error {
-		var err error
 		if resp, err = c.core.Do(req); err != nil {
 			return err
 		}
