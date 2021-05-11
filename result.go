@@ -1,6 +1,7 @@
 package caller
 
 import (
+	"bytes"
 	"io"
 )
 
@@ -18,8 +19,7 @@ type result struct {
 	bytes     []byte
 	parseFunc ParseFunc
 
-	err   error
-	close bool
+	err error
 }
 
 func newErrResult(err error) Result {
@@ -35,11 +35,11 @@ func (p *result) Err() error {
 }
 
 func (p *result) Byte() ([]byte, error) {
-	return p.read()
+	return p.readByte()
 }
 
 func (p *result) String() (string, error) {
-	read, err := p.read()
+	read, err := p.readByte()
 	if err != nil {
 		return "", err
 	}
@@ -47,8 +47,12 @@ func (p *result) String() (string, error) {
 }
 
 func (p *result) Raw() (io.ReadCloser, error) {
-	if err := p.check(); err != nil {
-		return nil, err
+	if len(p.bytes) != 0 {
+		return io.NopCloser(bytes.NewReader(p.bytes)), nil
+	}
+
+	if p.Err() != nil {
+		return nil, p.Err()
 	}
 
 	return p.body, nil
@@ -59,7 +63,7 @@ func (p *result) Parse(receive interface{}) error {
 }
 
 func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
-	read, err := p.read()
+	read, err := p.readByte()
 	if err != nil {
 		return err
 	}
@@ -70,15 +74,15 @@ func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
 	return nil
 }
 
-func (p *result) read() ([]byte, error) {
-	if p.bytes != nil {
+func (p *result) readByte() ([]byte, error) {
+	if len(p.bytes) != 0 {
 		return p.bytes, nil
 	}
 
-	if err := p.check(); err != nil {
-		return nil, err
+	if p.Err() != nil {
+		return nil, p.Err()
 	}
-	defer func() { _ = p.body.Close(); p.close = true }()
+	defer func() { _ = p.body.Close() }()
 
 	var err error
 	p.bytes, err = readerToBytes(p.body)
@@ -87,14 +91,4 @@ func (p *result) read() ([]byte, error) {
 	}
 
 	return p.bytes, nil
-}
-
-func (p *result) check() error {
-	if p.err != nil {
-		return p.err
-	}
-	if p.close {
-		return ErrCloseBody
-	}
-	return nil
 }

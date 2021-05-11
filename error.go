@@ -6,10 +6,9 @@ import (
 )
 
 var (
-	ErrCloseBody = errors.New("body has close")
-	ErrRequest   = errors.New("request is wrong")
-	ErrServer    = errors.New("server is wrong")
-	ErrNotMatch  = errors.New("not match error type")
+	ErrRequest  = errors.New("request is wrong")
+	ErrServer   = errors.New("server is wrong")
+	ErrNotMatch = errors.New("not match error type")
 )
 
 func UnWarpError(err error) (*ResultError, error) {

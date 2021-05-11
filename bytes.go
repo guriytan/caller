@@ -2,6 +2,7 @@ package caller
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"reflect"
 	"unsafe"
@@ -14,8 +15,12 @@ func bytesToString(bytes []byte) string {
 
 func readerToBytes(date io.Reader) ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0, 512))
-	if _, err := buf.ReadFrom(date); err != nil {
+	read, err := buf.ReadFrom(date)
+	if err != nil {
 		return nil, err
+	}
+	if read == 0 {
+		return nil, errors.New("body size is zero")
 	}
 	return buf.Bytes(), nil
 }
