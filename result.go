@@ -1,6 +1,8 @@
 package caller
 
 import (
+	"bufio"
+	"bytes"
 	"io"
 )
 
@@ -50,6 +52,7 @@ func (p *result) Raw() (io.ReadCloser, error) {
 	if err := p.check(); err != nil {
 		return nil, err
 	}
+
 	return p.body, nil
 }
 
@@ -58,11 +61,12 @@ func (p *result) Parse(receive interface{}) error {
 }
 
 func (p *result) ParseWithFunc(receive interface{}, parse ParseFunc) error {
-	bytes, err := p.read()
+	read, err := p.read()
 	if err != nil {
 		return err
 	}
-	if err = parse(bytes, receive); err != nil {
+
+	if err = parse(read, receive); err != nil {
 		return newResultError("parse response body failed", err)
 	}
 	return nil
@@ -72,16 +76,20 @@ func (p *result) read() ([]byte, error) {
 	if p.bytes != nil {
 		return p.bytes, nil
 	}
+
 	if err := p.check(); err != nil {
 		return nil, err
 	}
 	defer func() { _ = p.body.Close(); p.close = true }()
-	bytes, err := io.ReadAll(p.body)
-	if err != nil {
+
+	reader := bufio.NewReader(p.body)
+	buf := bytes.NewBuffer(make([]byte, 0, 512))
+	if _, err := buf.ReadFrom(reader); err != nil {
 		return nil, newResultError("read response body failed", err)
 	}
-	p.bytes = bytes
-	return bytes, nil
+	p.bytes = buf.Bytes()
+
+	return p.bytes, nil
 }
 
 func (p *result) check() error {

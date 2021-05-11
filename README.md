@@ -30,8 +30,14 @@ func TestOptionalCaller(t *testing.T) {
     ctx := context.Background()
     result := map[string]interface{}{}
     header := map[string]string{"key": "value"}
-    result := map[string]interface{}{} 
-    caller := NewCaller(WithTimeout(5*time.Second), WithRetry(3, 5*time.Second))
+    config := &Config{
+        Timeout:       30 * time.Second,
+        ConnTimeout:   10 * time.Second,
+        KeepAlive:     10 * time.Second,
+        RetryTime:     3,
+        RetryInternal: time.Second,
+    }
+    caller := NewCaller(config.Options()...)
     err := caller.Do(ctx, "http://127.0.0.1:8888/ping", WithMethod("get"), WithHeader(header)).Parse(&result)
     if err != nil { 
     	t.Fatal(err)
