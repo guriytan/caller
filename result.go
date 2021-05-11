@@ -1,8 +1,6 @@
 package caller
 
 import (
-	"bufio"
-	"bytes"
 	"io"
 )
 
@@ -82,12 +80,11 @@ func (p *result) read() ([]byte, error) {
 	}
 	defer func() { _ = p.body.Close(); p.close = true }()
 
-	reader := bufio.NewReader(p.body)
-	buf := bytes.NewBuffer(make([]byte, 0, 512))
-	if _, err := buf.ReadFrom(reader); err != nil {
+	var err error
+	p.bytes, err = readerToBytes(p.body)
+	if err != nil {
 		return nil, newResultError("read response body failed", err)
 	}
-	p.bytes = buf.Bytes()
 
 	return p.bytes, nil
 }

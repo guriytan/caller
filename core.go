@@ -2,7 +2,6 @@ package caller
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -69,6 +68,6 @@ func (c *core) handleError(err error) error {
 
 func (c *core) handlerResponse(resp *http.Response) string {
 	defer func() { _ = resp.Body.Close() }()
-	bytes, _ := io.ReadAll(resp.Body)
+	bytes, _ := readerToBytes(resp.Body)
 	return bytesToString(bytes)
 }
