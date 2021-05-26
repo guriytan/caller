@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Config struct {
+type option struct {
 	Timeout     time.Duration
 	ConnTimeout time.Duration
 	KeepAlive   time.Duration
@@ -25,8 +25,8 @@ type Config struct {
 	ParseFunc ParseFunc
 }
 
-func newDefaultConfig() *Config {
-	return &Config{
+func newOption() *option {
+	return &option{
 		ConnTimeout: 5 * time.Second,
 		Timeout:     10 * time.Second,
 		KeepAlive:   10 * time.Second,
@@ -34,118 +34,85 @@ func newDefaultConfig() *Config {
 	}
 }
 
-func (c *Config) Options() []ConfigFunc {
-	return []ConfigFunc{
-		WithTimeout(c.Timeout),
-		WithConnTimeout(c.ConnTimeout),
-		WithKeepAlive(c.KeepAlive),
-		WithWriteBuffer(c.WriteBuffer),
-		WithReadBuffer(c.ReadBuffer),
-		WithMaxIdleConn(c.MaxIdleConn),
-		WithRetry(c.RetryTime, c.RetryInternal),
-		WithProxy(c.Proxy),
-		WithRedirect(c.Redirect),
-		WithCookieJar(c.CookieJar),
-		WithParseFunc(c.ParseFunc),
+func (o *option) apply(opts ...Option) *option {
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
+}
+
+type Option func(config *option)
+
+func WithTimeout(timeout time.Duration) Option {
+	return func(config *option) {
+		config.Timeout = timeout
 	}
 }
 
-type ConfigFunc func(config *Config)
-
-func WithTimeout(timeout time.Duration) ConfigFunc {
-	return func(config *Config) {
-		if timeout > 0 {
-			config.Timeout = timeout
-		}
+func WithConnTimeout(timeout time.Duration) Option {
+	return func(config *option) {
+		config.ConnTimeout = timeout
 	}
 }
 
-func WithConnTimeout(timeout time.Duration) ConfigFunc {
-	return func(config *Config) {
-		if timeout > 0 {
-			config.ConnTimeout = timeout
-		}
+func WithKeepAlive(alive time.Duration) Option {
+	return func(config *option) {
+		config.KeepAlive = alive
 	}
 }
 
-func WithKeepAlive(alive time.Duration) ConfigFunc {
-	return func(config *Config) {
-		if alive > 0 {
-			config.KeepAlive = alive
-		}
+func WithWriteBuffer(buffer int) Option {
+	return func(config *option) {
+		config.WriteBuffer = buffer
 	}
 }
 
-func WithWriteBuffer(buffer int) ConfigFunc {
-	return func(config *Config) {
-		if buffer > 0 {
-			config.WriteBuffer = buffer
-		}
+func WithReadBuffer(buffer int) Option {
+	return func(config *option) {
+		config.ReadBuffer = buffer
 	}
 }
 
-func WithReadBuffer(buffer int) ConfigFunc {
-	return func(config *Config) {
-		if buffer > 0 {
-			config.ReadBuffer = buffer
-		}
+func WithMaxIdleConn(conn int) Option {
+	return func(config *option) {
+		config.MaxIdleConn = conn
 	}
 }
 
-func WithMaxIdleConn(conn int) ConfigFunc {
-	return func(config *Config) {
-		if conn > 0 {
-			config.MaxIdleConn = conn
-		}
+func WithRetry(retries int, internal time.Duration) Option {
+	return func(config *option) {
+		config.RetryTime = retries
+		config.RetryInternal = internal
 	}
 }
 
-func WithRetry(retries int, internal time.Duration) ConfigFunc {
-	return func(config *Config) {
-		if retries > 0 {
-			config.RetryTime = retries
-			config.RetryInternal = internal
-		}
+func WithProxyURL(proxyURL string) Option {
+	return func(config *option) {
+		u, _ := url.Parse(proxyURL)
+		config.Proxy = http.ProxyURL(u)
 	}
 }
 
-func WithProxyURL(proxyURL string) ConfigFunc {
-	return func(config *Config) {
-		if len(proxyURL) != 0 {
-			u, _ := url.Parse(proxyURL)
-			config.Proxy = http.ProxyURL(u)
-		}
+func WithProxy(proxy func(*http.Request) (*url.URL, error)) Option {
+	return func(config *option) {
+		config.Proxy = proxy
 	}
 }
 
-func WithProxy(proxy func(*http.Request) (*url.URL, error)) ConfigFunc {
-	return func(config *Config) {
-		if proxy != nil {
-			config.Proxy = proxy
-		}
+func WithRedirect(redirect func(req *http.Request, via []*http.Request) error) Option {
+	return func(config *option) {
+		config.Redirect = redirect
 	}
 }
 
-func WithRedirect(redirect func(req *http.Request, via []*http.Request) error) ConfigFunc {
-	return func(config *Config) {
-		if redirect != nil {
-			config.Redirect = redirect
-		}
+func WithCookieJar(cookiejar http.CookieJar) Option {
+	return func(config *option) {
+		config.CookieJar = cookiejar
 	}
 }
 
-func WithCookieJar(cookiejar http.CookieJar) ConfigFunc {
-	return func(config *Config) {
-		if cookiejar != nil {
-			config.CookieJar = cookiejar
-		}
-	}
-}
-
-func WithParseFunc(parseFunc ParseFunc) ConfigFunc {
-	return func(config *Config) {
-		if parseFunc != nil {
-			config.ParseFunc = parseFunc
-		}
+func WithParseFunc(parseFunc ParseFunc) Option {
+	return func(config *option) {
+		config.ParseFunc = parseFunc
 	}
 }

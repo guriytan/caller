@@ -30,15 +30,14 @@ func TestOptionalClient(t *testing.T) {
 	defer shutdown()
 
 	result := map[string]interface{}{}
-	config := &Config{
-		Timeout:       30 * time.Second,
-		ConnTimeout:   10 * time.Second,
-		KeepAlive:     10 * time.Second,
-		RetryTime:     3,
-		RetryInternal: time.Second,
+	opts := []Option{
+		WithTimeout(30 * time.Second),
+		WithConnTimeout(10 * time.Second),
+		WithKeepAlive(10 * time.Second),
+		WithRetry(3, time.Second),
 	}
-	caller := NewCaller(config.Options()...)
-	err := caller.Do(ctx, fmt.Sprintf("%s/ping", url), WithMethod("get"), WithHeader(map[string]string{"key": "value"})).Parse(&result)
+	caller := New(opts...)
+	err := caller.Do(ctx, http.MethodGet, fmt.Sprintf("%s/ping", url), WithHeader(map[string]string{"key": "value"})).Parse(&result)
 	if err != nil {
 		t.Fatal(err)
 	}

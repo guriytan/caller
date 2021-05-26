@@ -10,41 +10,45 @@ var (
 	defaultCallerOnce sync.Once
 )
 
-func GetDefaultCaller() *Caller {
+func getDefault() *Caller {
 	defaultCallerOnce.Do(func() {
-		defaultCaller = NewCaller()
+		defaultCaller = New()
 	})
 	return defaultCaller
 }
 
 func Options(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Options(ctx, url, opts...)
+	return getDefault().Options(ctx, url, opts...)
 }
 
 func Get(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Get(ctx, url, opts...)
+	return getDefault().Get(ctx, url, opts...)
 }
 
 func Head(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Head(ctx, url, opts...)
+	return getDefault().Head(ctx, url, opts...)
 }
 
 func Post(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Post(ctx, url, opts...)
+	return getDefault().Post(ctx, url, opts...)
 }
 
 func Put(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Put(ctx, url, opts...)
+	return getDefault().Put(ctx, url, opts...)
+}
+
+func Patch(ctx context.Context, url string, opts ...RequestFunc) Result {
+	return getDefault().Patch(ctx, url, opts...)
 }
 
 func Delete(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Delete(ctx, url, opts...)
+	return getDefault().Delete(ctx, url, opts...)
 }
 
 func Trace(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Trace(ctx, url, opts...)
+	return getDefault().Trace(ctx, url, opts...)
 }
 
 func Connect(ctx context.Context, url string, opts ...RequestFunc) Result {
-	return GetDefaultCaller().Connect(ctx, url, opts...)
+	return getDefault().Connect(ctx, url, opts...)
 }

@@ -5,23 +5,23 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 type request struct {
 	method string
-	rawURL string
+	url    string
+
 	query  url.Values
 	body   io.Reader
 	header map[string]string
 }
 
 func newRequest(ctx context.Context, method, url string, opts ...RequestFunc) (*http.Request, error) {
-	param := &request{method: method, rawURL: url}
+	param := &request{method: method, url: url}
 	for _, opt := range opts {
 		opt(param)
 	}
-	parseURL, err := param.url()
+	parseURL, err := param.parseURL()
 	if err != nil {
 		return nil, newResultError("parse url failed", err)
 	}
@@ -35,8 +35,8 @@ func newRequest(ctx context.Context, method, url string, opts ...RequestFunc) (*
 	return req, nil
 }
 
-func (r *request) url() (string, error) {
-	parseURL, err := url.Parse(r.rawURL)
+func (r *request) parseURL() (string, error) {
+	parseURL, err := url.Parse(r.url)
 	if err != nil {
 		return "", err
 	}
@@ -49,12 +49,6 @@ func (r *request) url() (string, error) {
 }
 
 type RequestFunc func(req *request)
-
-func WithMethod(method string) RequestFunc {
-	return func(req *request) {
-		req.method = strings.ToUpper(method)
-	}
-}
 
 func WithQuery(query map[string]string) RequestFunc {
 	return func(req *request) {

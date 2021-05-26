@@ -15,7 +15,7 @@ type core struct {
 	client *http.Client
 }
 
-func newCore(cfg *Config) Core {
+func newCore(cfg *option) Core {
 	return &core{
 		client: &http.Client{
 			Transport: &http.Transport{
